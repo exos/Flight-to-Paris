@@ -142,30 +142,29 @@ class controller_node {
 		$after = Flight::request()->query['after'];
 		$before = Flight::request()->query['before'];
 		$skip = Flight::request()->query['skip'];
-		$cant = Flight::request()->query['count'];
+		$count = Flight::request()->query['count'];
 
 		$template = 'node_search';
 
         $format = Router::getFormat($uri);
 		$format = trim($format) ? trim($format) : 'html';
         
-        $template = $template.'_'.$format;
 		if ( $format != 'html' ) {
     		$layout = null;
 		}
 
         if ( empty($query) ) {
-            $nodes = model_node::search($query,$before,$after,$skip, $cant);
+            $nodes = model_node::search($query,$before,$after,$skip, $count);
             $view->set('title',SITE_TITLE);
 		} else if ( self::canSearch($query) ) {
-			$nodes = model_node::search($query,$before,$after,$skip, $cant);
+			$nodes = model_node::search($query,$before,$after,$skip, $count);
 
             $params = Array(
                 'q' => $query,
                 'after' => $after,
                 'before' => $before,
                 'skip' => $skip,
-                'cant' => $cant
+                'count' => $count
             );
 
             $view->set('feeds',Array(
@@ -192,6 +191,8 @@ class controller_node {
 			if ( ! count($nodes) ) {
 				Flight::halt(204);
 			}
+		} else {
+			$template = $template.'_'.$format;
 		}
 
 		$time = ORM::for_table('node')->raw_query('select unix_timestamp() as timestamp')->find_one();
@@ -208,5 +209,14 @@ class controller_node {
 		return ($query && mb_strlen($query) > 2);
 	}
 
+	public function preview() {
+		$view = Flight::View();
+
+		$markdown = Flight::request()->data['markdown'];
+
+		$view->set('markdown',$markdown);
+	
+		Flight::render('node_preview_ajax',null,null);
+	}
 
 }

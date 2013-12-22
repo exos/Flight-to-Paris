@@ -27,6 +27,7 @@ if (php_sapi_name() == 'cli-server') {
 Flight::route('GET /@uri:((search/?|all)?' . '(\.('. implode('|',$allowed_formats) .'))?)',array('controller_node','search'));
 
 Flight::route('POST /?$',array('controller_node','create'));
+Flight::route('POST /preview/?$',array('controller_node','preview'));
 
 Flight::route('GET /score/?',array('controller_score','get'));
 Flight::route('POST /score/?',array('controller_score','post'));
