@@ -18,13 +18,17 @@ $(document).ready(function(){
 			} else {
 				node_link = $(this).find('a.uri');
 				uri = node_link.attr('href');
-				if ( node_link[0].hostname == domain ) {
-					$(this).find('.node-short').after('<div class="node-full span12"><img src="/assets/img/loading.gif" alt="Cargando..." /></div>');
-					$(this).find('.node-short').hide();
-					$(this).find('.node-full').load(uri);
-				} else {
-					window.location.href=uri;
-				}
+				$(this).find('.node-short').after('<div class="node-full col-sm-10"><img src="/assets/img/loading.gif" alt="Cargando..." /></div>');
+				$(this).find('.node-short').hide();
+				$.ajax({
+					type: 'POST',
+					url: '/getbyuri',
+					data: {'uri': uri }, 
+					context: this,
+					success: function(data){
+						$(this).find('.node-full').html(data);
+					}
+				});
 			}
 		}
 	});
@@ -36,7 +40,7 @@ $(document).ready(function(){
 		if ( loadmore.is(':visible') ) {
 		$.get('/?q='+query+'&after='+after, function(data,code,xhr) {
 			if ( xhr.status == '200' ) {
-				$('content').children(':first.node').before(data);
+				$('#node-stream').children(':first.node').before(data);
 				after += refresh;
 			} else if ( xhr.status == '204' ) {
 				after += refresh;
@@ -91,6 +95,9 @@ $(document).ready(function(){
 		
 		node = $(this).closest('.node');
 		amount = $(this).val();
+		if ( typeof(amount) == 'undefined' || amount < 1 ) {
+			amount = $(this).parent().parent().children('input').val();
+		}
 
 		promote(node,amount);
 	});
@@ -175,6 +182,8 @@ $(document).ready(function(){
 		}
 	});
 
+	}
+
 	$('.nosubmit').keydown(function(e){
 		if(e.keyCode == 13 ) {
 			e.preventDefault();
@@ -183,6 +192,5 @@ $(document).ready(function(){
 		}
 	});
 
-	}
 });
 

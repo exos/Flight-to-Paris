@@ -43,7 +43,7 @@ class model_node {
         
         $res = $cache->getCacheOr(function ($cache) use ($before, $after, $skip, $query, $count) {
 
-            $q = 'SELECT node.uri FROM node JOIN score ON (score.uri = node.uri) WHERE 1';
+            $q = 'SELECT node.uri FROM node LEFT JOIN score ON (score.uri = node.uri) WHERE 1';
 
             if ( $before > 0 ) {
                 $q .= ' AND UNIX_TIMESTAMP(node.created) < '.$before;
@@ -56,7 +56,7 @@ class model_node {
                 $q .= ' AND content LIKE '.ORM::get_db()->quote('%'.$query.'%');
             }
 
-            $q .= ' ORDER BY UNIX_TIMESTAMP(node.created) + LOG(score.score) * 60 * 60 * 24 DESC';
+            $q .= ' ORDER BY UNIX_TIMESTAMP(node.created) + LOG(score.score + 1) * 60 * 60 * 24 DESC';
             $q .= ' LIMIT '.$skip.','.$count;
 
             $nodes = ORM::for_table('node')->raw_query($q)->find_many();
@@ -72,8 +72,8 @@ class model_node {
 
 	}
 
-	public static function getByAuthor($author) {
-		$q = "SELECT `to` FROM `link` WHERE `type` = '".AUTHOR_URI."' AND `from` = '".$author->uri."' ORDER BY created DESC";
+	public static function getByAuthor($author, $limit = 30) {
+		$q = "SELECT `to` FROM `link` WHERE `type` = '".AUTHOR_URI."' AND `from` = '".$author->uri."' ORDER BY created DESC LIMIT $limit";
 		$nodes = ORM::for_table('node')->raw_query($q)->find_many();	
 		$res = array();
         foreach ( $nodes as $val ) {

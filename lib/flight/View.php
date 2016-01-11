@@ -87,7 +87,7 @@ class View {
 
 	public static function markdown($text, $full = true) {
 		if ( ! self::$mk ) self::$mk = new Markdown_Parser;
-		$text = self::$mk->transform(trim($text));
+		$text = self::$mk->transform($text);
 		$text = playa::transform($text,$full);
 		return $text;
 	}
@@ -116,7 +116,7 @@ class View {
      * @return string Escaped string
      */
     public function e($str) {
-        echo htmlentities($str, ENT_QUOTES, "UTF-8");
+        return htmlentities($str, ENT_QUOTES, "UTF-8");
     }
 
     /**

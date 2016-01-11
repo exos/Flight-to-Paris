@@ -12,11 +12,12 @@
 
 */
 include 'config.php';
-
 mb_internal_encoding('UTF-8');
 
 require APP_PATH.'/model/auth.php';
 $auth = new auth;
+
+require APP_PATH.'/helpers.php';
 
 if (php_sapi_name() == 'cli-server') {
     if (preg_match('/\.(?:png|jpg|jpeg|gif|css|js)$/i', $_SERVER["REQUEST_URI"])) {
@@ -38,7 +39,12 @@ Flight::route('POST /score/send/?',array('controller_score','send'));
 Flight::route('GET /u/new/?$',array('controller_user','new_user'));
 Flight::route('POST /u/new/?$',array('controller_user','create'));
 
-//Flight::route('GET /u/follow/@url$',array('controller_user','follow'));
+Flight::route('GET /u/avatar/?$',array('controller_user','new_avatar'));
+Flight::route('POST /u/avatar/?$',array('controller_user','save_avatar'));
+
+Flight::route('GET /u/follow/?$',array('controller_user','follow_page'));
+Flight::route('POST /u/follow/?$',array('controller_user','follow'));
+
 Flight::route('GET /u/@username/?$',array('controller_user','get'));
 Flight::route('GET /u/@username/pubkey/?$',array('controller_user','pubkey'));
 Flight::route('GET /u/@username/feed/@format/?$',array('controller_user','feed'));
@@ -54,8 +60,12 @@ Flight::route('GET /f/$', array('controller_file','new_file') );
 Flight::route('POST /f/$', array('controller_file','upload') );
 #Flight::route('GET /f/@id:[a-z0-9_-]+(/.*)?$', array('controller_file','get') );
 
+Flight::route('POST /getbyuri(\.('. implode('|',$allowed_formats) .'))?/?',array('controller_node','getbyuri'));
+
 Flight::route('GET /@id:[a-z0-9_-]+'.
 			'(\.('. implode('|',$allowed_formats) .'))?'.
 			'/?$',array('controller_node','get'));
 
-Flight::start();
+
+@Flight::start();
+
